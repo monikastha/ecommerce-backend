@@ -1,7 +1,12 @@
 from django.db import models
-
+from  users.models import Users
 # Create your models here.
 class Buyer(models.Model):
+  user=models.OneToOneField(
+    Users,
+    on_delete=models.CASCADE,
+    related_name="buyer_profile"
+  )
   name=models.CharField(max_length=100)
   email=models.EmailField(unique=True)
   age=models.IntegerField()

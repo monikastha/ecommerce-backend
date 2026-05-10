@@ -37,12 +37,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',
     'corsheaders',
+    'rest_framework',
+    'adminperson',
     'api',
-    'rest_framework',
-    'corsheaders',
-
+    'users',
+    'payment',
+    'product',
+    'productcategory',
+    'review',
+    'seller',
+    'stock',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
-CORS_ALLOWEDORIGIN=[
+CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173'
 ]
 ROOT_URLCONF = 'config.urls'
@@ -126,3 +131,4 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 CORS_ALLOW_ALL_ORIGINS = True
+AUTH_USER_MODEL = 'users.Users'
