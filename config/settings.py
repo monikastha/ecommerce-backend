@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'review',
     'seller',
     'stock',
+    'staff',
 ]
 
 MIDDLEWARE = [
