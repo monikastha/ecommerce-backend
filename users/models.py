@@ -12,32 +12,18 @@ class Users(AbstractUser):
         ('delivery', 'Delivery Man'),
     )
 
-    phone = models.CharField(max_length=15, blank=True, null=True)
+    name  = models.CharField(max_length=255)
+    email = models.EmailField(unique=True)
+    username = models.CharField(unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='buyer')
     is_verified = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    REQUIRED_FIELDS=['name','role', 'email']
 
 
-# class Staff(models.Model):
-
-#     ROLE_CHOICES = (
-#         ("assistant", "Assistant"),
-#         ("warehousestaff", "Warehouse Staff"),
-#     )
-
-#     user = models.OneToOneField(
-#         Users,
-#         on_delete=models.CASCADE,
-#         related_name="staff_profile"
-#     )
-
-#     phone = models.CharField(max_length=15, blank=True, null=True)
-#     address = models.TextField(blank=True, null=True)
-#     role = models.CharField(max_length=50, choices=ROLE_CHOICES)
-
-#     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.username

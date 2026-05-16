@@ -12,7 +12,7 @@ from rest_framework.routers import DefaultRouter
 from .views import UsersViewSet, LoginView
 
 router = DefaultRouter()
-router.register(r'users', UsersViewSet, basename='users')
+router.register(r'', UsersViewSet, basename='users')
 
 urlpatterns = [
     path('login/', LoginView.as_view()),
