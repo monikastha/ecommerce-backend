@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'corsheaders',
     'rest_framework',
+    'django_filters',
     'adminperson',
     'api',
     'users',
@@ -50,6 +51,7 @@ INSTALLED_APPS = [
     'seller',
     'stock',
     'staff',
+    'adminlocation',
 ]
 
 MIDDLEWARE = [
@@ -132,5 +134,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+# Media files (Uploaded images)
+
 CORS_ALLOW_ALL_ORIGINS = True
 AUTH_USER_MODEL = 'users.Users'
+
+# Media Settings
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# Serve media in development
+

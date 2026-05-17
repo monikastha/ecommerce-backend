@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -9,5 +11,9 @@ urlpatterns = [
     path('api/products/', include('productcategory.urls')),
     path('api/users/', include('users.urls')),
     path("api/", include("staff.urls")),
+    path('api/', include('adminlocation.urls')),
+   path('api/productcategory/', include('productcategory.urls')),
     
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
