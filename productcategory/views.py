@@ -1,7 +1,8 @@
 from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Category, SubCategory
-from .serializers import CategorySerializer, SubCategorySerializer, CategoryDetailSerializer
+from .models import Category
+from .serializers import CategorySerializer, CategoryDetailSerializer
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
@@ -13,10 +14,3 @@ class CategoryViewSet(viewsets.ModelViewSet):
         if self.action == 'retrieve':
             return CategoryDetailSerializer
         return CategorySerializer
-
-
-class SubCategoryViewSet(viewsets.ModelViewSet):
-    queryset = SubCategory.objects.all().select_related('category')
-    serializer_class = SubCategorySerializer
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    search_fields = ['name', 'category__name']
