@@ -1,10 +1,12 @@
-from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from .views import AdminPersonViewSet
-
-router = DefaultRouter()
-router.register(r'adminperson', AdminPersonViewSet)
+from django.urls import path
+from .views import (
+    AdminPersonListCreateView,
+    AdminPersonDetailView,
+    AdminPersonMeView
+)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('', AdminPersonListCreateView.as_view(), name='adminperson-list-create'),
+    path('<int:pk>/', AdminPersonDetailView.as_view(), name='adminperson-detail'),
+    path('me/', AdminPersonMeView.as_view(), name='adminperson-me'),   # Current admin's profile
 ]
