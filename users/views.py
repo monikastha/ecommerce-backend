@@ -6,7 +6,9 @@ from django.contrib.auth import authenticate
 from .models import Users
 from .serializers import UsersSerializer
 from rest_framework.viewsets import ModelViewSet
-
+from .utils import generate_otp
+from .models import OTP
+from django.core.mail import send_mail
 
 class LoginView(APIView):
     def post(self, request):
@@ -44,6 +46,72 @@ class LoginView(APIView):
             "role": user.role,
         }, status=status.HTTP_200_OK)
 
+
+class SendOTPView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({
+                'error': 'Email is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # generate otp
+        otp = generate_otp()
+
+        # delete old OTPs
+        OTP.objects.filter(email=email).delete()
+
+        # save new OTP
+        OTP.objects.create(
+            email=email,
+            otp=otp
+        )
+
+        send_mail(
+            subject='Your OTP Code',
+            message=f'Your OTP is {otp}',
+            from_email=None,
+            recipient_list=[email]
+        )
+
+        return Response({
+            'message': 'OTP sent successfully'
+        },status=status.HTTP_200_OK)
+    
+class VerifyOTPView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        entered_otp = request.data.get('otp')
+
+        try:
+            otp_obj = OTP.objects.get(email=email)
+            print(otp_obj)
+
+            # delete that email row if otp expires
+            if otp_obj.is_expired():
+                otp_obj.delete()
+
+                return Response({
+                    'error': 'OTP expired'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            if otp_obj.otp == entered_otp:
+
+                otp_obj.delete()
+
+                return Response({
+                    'message': 'OTP verified successfully'
+                }, status=status.HTTP_200_OK)
+
+            return Response({
+                'error': 'Invalid OTP'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        except OTP.DoesNotExist:
+            return Response({
+                'error' : "No OTP found"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+            
 
 class UsersViewSet(ModelViewSet):
     queryset = Users.objects.all()
