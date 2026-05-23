@@ -41,9 +41,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'django_filters',
+    'users',
     'adminperson',
     'api',
-    'users',
     'payment',
     'product',
     'productcategory',
@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'adminlocation',
     'promotion',
     'deliveryman',
+
     
 ]
 

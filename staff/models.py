@@ -20,7 +20,6 @@ class Staff(models.Model):
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-
     REQUIRED_FIELDS = ['name', 'username', 'email']
 
     def __str__(self):
