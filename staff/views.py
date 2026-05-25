@@ -13,6 +13,33 @@ class StaffViewSet(viewsets.ModelViewSet):
     # VALID ROLES
     VALID_ROLES = ['warehousestaff', 'assistant']
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        data = request.data.copy()
+        password = data.pop('password', None)
+        if isinstance(password, list):
+            password = password[0] if password else None
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            with transaction.atomic():
+                staff = serializer.save()
+                if staff.user:
+                    staff.user.name = staff.name
+                    staff.user.username = staff.username
+                    staff.user.email = staff.email
+                    staff.user.role = staff.role
+                    if password:
+                        staff.user.set_password(password)
+                    staff.user.save()
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.data)
+
     # CUSTOM CREATE LOGIC
     def create(self, request, *args, **kwargs):
         print("Custom Registration of Staff Triggered")

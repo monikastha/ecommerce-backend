@@ -10,6 +10,33 @@ class DeliverymanViewSet(viewsets.ModelViewSet):
     queryset = Deliveryman.objects.all().order_by('-id')
     serializer_class = DeliverymanSerializer
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        data = request.data.copy()
+        password = data.pop('password', None)
+        if isinstance(password, list):
+            password = password[0] if password else None
+
+        serializer = self.get_serializer(instance, data=data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            with transaction.atomic():
+                deliveryman = serializer.save()
+                if deliveryman.user:
+                    deliveryman.user.name = deliveryman.name
+                    deliveryman.user.username = deliveryman.username
+                    deliveryman.user.email = deliveryman.email
+                    deliveryman.user.role = 'delivery'
+                    if password:
+                        deliveryman.user.set_password(password)
+                    deliveryman.user.save()
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.data)
+
     def create(self, request, *args, **kwargs):
         data = request.data
 

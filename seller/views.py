@@ -59,6 +59,46 @@ def seller_list(request):
     return Response([seller_payload(seller) for seller in sellers])
 
 
+@api_view(['GET', 'PUT', 'PATCH'])
+@parser_classes([MultiPartParser, FormParser])
+def seller_detail(request, seller_id):
+    try:
+        seller = Seller.objects.select_related('user').get(id=seller_id)
+    except Seller.DoesNotExist:
+        return Response({'error': 'Seller not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        return Response(seller_payload(seller))
+
+    data = request.data
+    user = seller.user
+
+    user.name = data.get('name', user.name)
+    user.username = data.get('username', user.username)
+    user.email = data.get('email', user.email)
+    if data.get('password'):
+        user.set_password(data.get('password'))
+    user.save()
+
+    seller.phone = data.get('phone', seller.phone)
+    seller.citizenship = data.get('citizenship', seller.citizenship)
+    seller.pan_no = data.get('pan_no', seller.pan_no)
+    seller.address = data.get('address', seller.address)
+    if data.get('status') in ['pending', 'approved', 'rejected']:
+        seller.status = data.get('status')
+        seller.is_approved = seller.status == 'approved'
+    if request.FILES.get('logo'):
+        seller.logo = request.FILES['logo']
+    if request.FILES.get('business_certificate'):
+        seller.business_certificate = request.FILES['business_certificate']
+    seller.save()
+
+    return Response({
+        'message': 'Seller updated successfully',
+        'seller': seller_payload(seller),
+    })
+
+
 @api_view(['POST'])
 @parser_classes([MultiPartParser, FormParser])
 def seller_register(request):
