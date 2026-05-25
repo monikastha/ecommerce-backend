@@ -16,12 +16,16 @@ class ProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name', 'code', 'description', 'category__name', 'seller__user__name']
     filterset_fields = ['seller', 'category', 'status', 'is_published']
 
+    def perform_create(self, serializer):
+        serializer.save(status='pending', is_published=False, rejection_reason='')
+
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
         product = self.get_object()
         product.status = 'approved'
+        product.is_published = True
         product.rejection_reason = ''
-        product.save(update_fields=['status', 'rejection_reason', 'updated_at'])
+        product.save(update_fields=['status', 'is_published', 'rejection_reason', 'updated_at'])
         return Response({
             'message': 'Product approved successfully',
             'product': self.get_serializer(product).data,

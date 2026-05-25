@@ -9,6 +9,7 @@ from rest_framework.viewsets import ModelViewSet
 from .utils import generate_otp
 from .models import OTP
 from django.core.mail import send_mail
+from seller.models import Seller
 
 class LoginView(APIView):
     def post(self, request):
@@ -39,12 +40,21 @@ class LoginView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Login successful
-        return Response({
+        response_data = {
             "message": "Login successful",
+            "user_id": user.id,
             "username": user.username,
             "role": user.role,
-        }, status=status.HTTP_200_OK)
+        }
+
+        if user.role == "seller":
+            try:
+                response_data["seller_id"] = user.seller.id
+            except Seller.DoesNotExist:
+                response_data["seller_id"] = None
+
+        # Login successful
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 class SendOTPView(APIView):
