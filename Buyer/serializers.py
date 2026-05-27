@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import AdminPerson
+from .models import Buyer
 
-class AdminPersonSerializer(serializers.ModelSerializer):
+class BuyerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = AdminPerson
+        model = Buyer
         fields = '__all__'

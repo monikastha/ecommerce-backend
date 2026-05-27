@@ -15,6 +15,8 @@ urlpatterns = [
     path('api/admin/', include('promotion.urls')),
     path('api/deliveryman/', include('deliveryman.urls')),
     path('api/seller/', include('seller.urls')),
+    path('api/buyer/', include('Buyer.urls')),
+    path('api/warehouse/', include('stock.urls')),
     
 ]
 if settings.DEBUG:

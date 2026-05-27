@@ -1,7 +1,23 @@
 from django.db import models
+from productcategory.models import Category
 
 class Stock(models.Model):
+    product_name = models.CharField(
+        max_length=255, 
+        default="Unknown Product"
+    )
+    
     quantity = models.IntegerField(default=0)
+    
+    # Made it nullable temporarily
+    productcategory = models.OneToOneField(
+        Category,
+        on_delete=models.CASCADE,
+        related_name="stock",
+        null=True,      # ← Added
+        blank=True      # ← Added
+    )
+    
     availability_status = models.CharField(
         max_length=20,
         choices=[
@@ -11,7 +27,7 @@ class Stock(models.Model):
         ],
         default='in_stock'
     )
-
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
