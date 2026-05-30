@@ -1,4 +1,5 @@
 from rest_framework import viewsets, status
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from .models import Staff
 from .serializers import StaffSerializer
 from rest_framework.response import Response
@@ -9,6 +10,7 @@ from django.db import transaction
 class StaffViewSet(viewsets.ModelViewSet):
     queryset = Staff.objects.all().order_by('-id')
     serializer_class = StaffSerializer
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
 
     # VALID ROLES
     VALID_ROLES = ['warehousestaff', 'assistant']

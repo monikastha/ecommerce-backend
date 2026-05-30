@@ -18,6 +18,7 @@ class Users(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(unique=True)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='buyer')
+    profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

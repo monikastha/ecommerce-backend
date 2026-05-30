@@ -16,8 +16,13 @@ def buyer_payload(buyer):
         "email": buyer.email,
         "phone_number": buyer.phone_number,
         "address": buyer.address,
-        "role": buyer.user.role,
     }
+
+
+@api_view(["GET"])
+def buyer_list(request):
+    buyers = Buyer.objects.select_related("user").all()
+    return Response([buyer_payload(buyer) for buyer in buyers], status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
@@ -50,7 +55,6 @@ def buyer_register(request):
                 name=data.get("fullName"),
                 username=data.get("username"),
                 email=data.get("email"),
-                role="buyer",
                 is_verified=True,
             )
             user.set_password(data.get("password"))

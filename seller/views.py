@@ -1,6 +1,6 @@
 from django.db import IntegrityError, transaction
 from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -20,6 +20,7 @@ def seller_payload(seller):
         'address': seller.address,
         'status': seller.status,
         'is_approved': seller.is_approved,
+        'profile_image': seller.logo.url if seller.logo else None,
         'logo': seller.logo.url if seller.logo else None,
         'business_certificate': (
             seller.business_certificate.url
@@ -60,7 +61,7 @@ def seller_list(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH'])
-@parser_classes([MultiPartParser, FormParser])
+@parser_classes([MultiPartParser, FormParser, JSONParser])
 def seller_detail(request, seller_id):
     try:
         seller = Seller.objects.select_related('user').get(id=seller_id)

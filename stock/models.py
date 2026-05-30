@@ -1,10 +1,27 @@
 from django.db import models
 from productcategory.models import Category
+from product.models import Product
+from adminlocation.models import Location
 
 class Stock(models.Model):
     product_name = models.CharField(
         max_length=255, 
+        blank=True,
         default="Unknown Product"
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="location_stocks",
+        null=True,
+        blank=True
+    )
+    location = models.ForeignKey(
+        Location,
+        on_delete=models.CASCADE,
+        related_name="product_stocks",
+        null=True,
+        blank=True
     )
     
     quantity = models.IntegerField(default=0)
@@ -31,5 +48,15 @@ class Stock(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["product", "location"],
+                name="unique_product_location_stock"
+            )
+        ]
+
     def __str__(self):
-        return f"{self.product_name} - {self.quantity}"
+        product_label = self.product.name if self.product else self.product_name
+        location_label = self.location.name if self.location else "No Location"
+        return f"{product_label} @ {location_label} - {self.quantity}"

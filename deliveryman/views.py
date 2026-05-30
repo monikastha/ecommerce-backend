@@ -1,4 +1,5 @@
 from rest_framework import viewsets, status
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from django.db import transaction
 from .models import Deliveryman
@@ -9,6 +10,7 @@ from users.models import Users
 class DeliverymanViewSet(viewsets.ModelViewSet):
     queryset = Deliveryman.objects.all().order_by('-id')
     serializer_class = DeliverymanSerializer
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)

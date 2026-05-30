@@ -5,7 +5,7 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField()
     role = serializers.CharField()
 class UsersSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = Users
@@ -13,7 +13,7 @@ class UsersSerializer(serializers.ModelSerializer):
             "id",
             "username",
             "email",
-            "phone",
+            "profile_image",
             "role",
             "password",
         ]
@@ -24,4 +24,16 @@ class UsersSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop("password", None)
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if password:
+            instance.set_password(password)
+
+        instance.save()
+        return instance
 # serializers.py

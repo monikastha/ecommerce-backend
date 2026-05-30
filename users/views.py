@@ -6,10 +6,13 @@ from django.contrib.auth import authenticate
 from .models import Users
 from .serializers import UsersSerializer
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from .utils import generate_otp
 from .models import OTP
 from django.core.mail import send_mail
 from seller.models import Seller
+from staff.models import Staff
+from deliveryman.models import Deliveryman
 
 class LoginView(APIView):
     def post(self, request):
@@ -44,14 +47,41 @@ class LoginView(APIView):
             "message": "Login successful",
             "user_id": user.id,
             "username": user.username,
+            "name": user.name,
+            "email": user.email,
+            "profile_image": user.profile_image.url if user.profile_image else None,
             "role": user.role,
         }
 
         if user.role == "seller":
             try:
-                response_data["seller_id"] = user.seller.id
+                seller = user.seller
             except Seller.DoesNotExist:
-                response_data["seller_id"] = None
+                return Response(
+                    {"error": "Seller profile not found"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            if seller.status != "approved" or not seller.is_approved:
+                return Response(
+                    {"error": "Your seller account is not approved by admin yet"},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+
+            response_data["seller_id"] = seller.id
+            response_data["seller_status"] = seller.status
+
+        if user.role in ["assistant", "warehousestaff"]:
+            try:
+                response_data["staff_id"] = user.staff_profile.id
+            except Staff.DoesNotExist:
+                response_data["staff_id"] = None
+
+        if user.role == "delivery":
+            try:
+                response_data["delivery_id"] = user.delivery_profile.id
+            except Deliveryman.DoesNotExist:
+                response_data["delivery_id"] = None
 
         # Login successful
         return Response(response_data, status=status.HTTP_200_OK)
@@ -126,3 +156,4 @@ class VerifyOTPView(APIView):
 class UsersViewSet(ModelViewSet):
     queryset = Users.objects.all()
     serializer_class = UsersSerializer
+    parser_classes = [JSONParser, MultiPartParser, FormParser]

@@ -5,4 +5,4 @@ class DeliverymanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Deliveryman
-        fields = ['id', 'user', 'name', 'username', 'email', 'phone', 'address', 'password']
+        fields = ['id', 'user', 'name', 'username', 'email', 'phone', 'address', 'profile_image', 'password']
