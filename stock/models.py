@@ -44,6 +44,7 @@ class Stock(models.Model):
         ],
         default='in_stock'
     )
+    available_to_buyers = models.BooleanField(default=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -58,5 +59,5 @@ class Stock(models.Model):
 
     def __str__(self):
         product_label = self.product.name if self.product else self.product_name
-        location_label = self.location.name if self.location else "No Location"
+        location_label = self.location.name if self.location else "All Locations"
         return f"{product_label} @ {location_label} - {self.quantity}"

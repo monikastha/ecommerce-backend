@@ -8,6 +8,7 @@ class Product(models.Model):
         ('pending', 'Pending'),
         ('approved', 'Approved'),
         ('rejected', 'Rejected'),
+        ('flagged', 'Flagged'),
     )
 
     seller = models.ForeignKey(

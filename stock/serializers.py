@@ -27,6 +27,7 @@ class StockSerializer(serializers.ModelSerializer):
             'location_province',
             'quantity',
             'availability_status',
+            'available_to_buyers',
             'created_at',
             'updated_at',
         ]

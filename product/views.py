@@ -44,6 +44,27 @@ class ProductViewSet(viewsets.ModelViewSet):
         })
 
     @action(detail=True, methods=['post'])
+    def flag(self, request, pk=None):
+        product = self.get_object()
+        product.status = 'flagged'
+        product.is_published = False
+        product.rejection_reason = request.data.get(
+            'reason',
+            'Flagged as inappropriate by admin/assistant',
+        )
+        product.save(update_fields=['status', 'is_published', 'rejection_reason', 'updated_at'])
+        return Response({
+            'message': 'Product flagged as inappropriate',
+            'product': self.get_serializer(product).data,
+        })
+
+    @action(detail=True, methods=['delete', 'post'], url_path='remove')
+    def remove(self, request, pk=None):
+        product = self.get_object()
+        product.delete()
+        return Response({'message': 'Product removed successfully'})
+
+    @action(detail=True, methods=['post'])
     def publish(self, request, pk=None):
         product = self.get_object()
         if product.status != 'approved':

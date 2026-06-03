@@ -19,7 +19,7 @@ class StockViewSet(viewsets.ModelViewSet):
         if location:
             queryset = queryset.filter(location_id=location)
         if available == 'true':
-            queryset = queryset.filter(quantity__gt=0)
+            queryset = queryset.filter(quantity__gt=0, available_to_buyers=True)
 
         return queryset
 
@@ -33,8 +33,9 @@ class StockViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
         product = data.get('product')
-        location = data.get('location')
+        location = data.get('location') or None
         quantity = int(data.get('quantity') or 0)
+        data['location'] = location
         data['availability_status'] = self._status_for_quantity(quantity)
 
         existing = Stock.objects.filter(product_id=product, location_id=location).first()
@@ -51,8 +52,9 @@ class StockViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         data = request.data.copy()
-        quantity = int(data.get('quantity') or 0)
-        data['availability_status'] = self._status_for_quantity(quantity)
+        if 'quantity' in data:
+            quantity = int(data.get('quantity') or 0)
+            data['availability_status'] = self._status_for_quantity(quantity)
         return super().update(request, *args, **kwargs)
 
     @action(detail=True, methods=['post'])
@@ -79,6 +81,8 @@ class StockViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Quantity must be at least 1'}, status=status.HTTP_400_BAD_REQUEST)
 
         stock = Stock.objects.filter(product_id=product, location_id=location).first()
+        if not stock:
+            stock = Stock.objects.filter(product_id=product, location__isnull=True).first()
         if not stock or stock.quantity < amount:
             return Response({'error': 'Out of Stock in Your Area'}, status=status.HTTP_400_BAD_REQUEST)
 
