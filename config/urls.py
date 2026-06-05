@@ -17,8 +17,10 @@ urlpatterns = [
     path('api/seller/', include('seller.urls')),
     path('api/buyer/', include('Buyer.urls')),
     path('api/warehouse/', include('stock.urls')),
+    path('api/', include('cart.urls')),
+    path('api/', include('orders.urls')),
     path('api/', include('review.urls')),
-    
+    path('api/', include('payment.urls')),  # Add payment URLs
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

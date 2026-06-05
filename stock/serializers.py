@@ -7,9 +7,6 @@ class StockSerializer(serializers.ModelSerializer):
     category_name = serializers.SerializerMethodField()
     product_price = serializers.SerializerMethodField()
     product_image = serializers.SerializerMethodField()
-    location_name = serializers.SerializerMethodField()
-    location_city = serializers.SerializerMethodField()
-    location_province = serializers.SerializerMethodField()
 
     class Meta:
         model = Stock
@@ -21,10 +18,6 @@ class StockSerializer(serializers.ModelSerializer):
             'category_name',
             'product_price',
             'product_image',
-            'location',
-            'location_name',
-            'location_city',
-            'location_province',
             'quantity',
             'availability_status',
             'available_to_buyers',
@@ -55,12 +48,3 @@ class StockSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         url = obj.product.image.url
         return request.build_absolute_uri(url) if request else url
-
-    def get_location_name(self, obj):
-        return obj.location.name if obj.location else None
-
-    def get_location_city(self, obj):
-        return obj.location.city if obj.location else None
-
-    def get_location_province(self, obj):
-        return obj.location.province if obj.location else None

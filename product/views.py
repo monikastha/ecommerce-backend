@@ -1,6 +1,6 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
-from rest_framework.parsers import FormParser, MultiPartParser
+from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -11,7 +11,7 @@ from .serializers import ProductSerializer
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.select_related('category', 'seller__user').all().order_by('-id')
     serializer_class = ProductSerializer
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
     search_fields = ['name', 'code', 'description', 'category__name', 'seller__user__name']
     filterset_fields = ['seller', 'category', 'status', 'is_published']

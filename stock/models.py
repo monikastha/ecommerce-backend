@@ -1,7 +1,6 @@
 from django.db import models
 from productcategory.models import Category
 from product.models import Product
-from adminlocation.models import Location
 
 class Stock(models.Model):
     product_name = models.CharField(
@@ -12,14 +11,7 @@ class Stock(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name="location_stocks",
-        null=True,
-        blank=True
-    )
-    location = models.ForeignKey(
-        Location,
-        on_delete=models.CASCADE,
-        related_name="product_stocks",
+        related_name="stocks",
         null=True,
         blank=True
     )
@@ -52,12 +44,11 @@ class Stock(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["product", "location"],
-                name="unique_product_location_stock"
+                fields=["product"],
+                name="unique_product_stock"
             )
         ]
 
     def __str__(self):
         product_label = self.product.name if self.product else self.product_name
-        location_label = self.location.name if self.location else "All Locations"
-        return f"{product_label} @ {location_label} - {self.quantity}"
+        return f"{product_label} - {self.quantity}"

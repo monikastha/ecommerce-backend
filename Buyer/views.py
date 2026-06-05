@@ -14,8 +14,23 @@ def buyer_payload(buyer):
         "name": buyer.name,
         "username": buyer.user.username,
         "email": buyer.email,
+        "age": buyer.age,
+        "gender": buyer.gender,
         "phone_number": buyer.phone_number,
         "address": buyer.address,
+        "shipping_state": buyer.shipping_state,
+        "shipping_city": buyer.shipping_city,
+        "shipping_postal_code": buyer.shipping_postal_code,
+        "shipping_address": buyer.shipping_address,
+        "billing_state": buyer.billing_state,
+        "billing_city": buyer.billing_city,
+        "billing_postal_code": buyer.billing_postal_code,
+        "billing_address": buyer.billing_address,
+        "total_orders": buyer.total_orders,
+        "total_spent": buyer.total_spent,
+        "profile_pic": buyer.profile_pic.url if buyer.profile_pic else None,
+        "created_at": buyer.created_at,
+        "updated_at": buyer.updated_at,
     }
 
 
@@ -23,6 +38,63 @@ def buyer_payload(buyer):
 def buyer_list(request):
     buyers = Buyer.objects.select_related("user").all()
     return Response([buyer_payload(buyer) for buyer in buyers], status=status.HTTP_200_OK)
+
+
+@api_view(["GET", "PATCH", "PUT"])
+def buyer_profile(request, user_id):
+    try:
+        buyer = Buyer.objects.select_related("user").get(user_id=user_id)
+    except Buyer.DoesNotExist:
+        return Response({
+            "error": "Buyer profile not found"
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == "GET":
+        return Response(buyer_payload(buyer), status=status.HTTP_200_OK)
+
+    data = request.data
+    user = buyer.user
+
+    name = data.get("name", buyer.name)
+    email = data.get("email", buyer.email)
+    username = data.get("username", user.username)
+
+    buyer.name = name
+    buyer.email = email
+    buyer.phone_number = data.get("phone_number", buyer.phone_number)
+    buyer.address = data.get("address", buyer.address)
+    buyer.gender = data.get("gender", buyer.gender)
+    buyer.shipping_state = data.get("shipping_state", buyer.shipping_state)
+    buyer.shipping_city = data.get("shipping_city", buyer.shipping_city)
+    buyer.shipping_postal_code = data.get("shipping_postal_code", buyer.shipping_postal_code)
+    buyer.shipping_address = data.get("shipping_address", buyer.shipping_address)
+    buyer.billing_state = data.get("billing_state", buyer.billing_state)
+    buyer.billing_city = data.get("billing_city", buyer.billing_city)
+    buyer.billing_postal_code = data.get("billing_postal_code", buyer.billing_postal_code)
+    buyer.billing_address = data.get("billing_address", buyer.billing_address)
+
+    age = data.get("age", buyer.age)
+    try:
+        buyer.age = int(age) if str(age).strip() else None
+    except ValueError:
+        return Response({
+            "error": "Age must be a valid number"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    user.name = name
+    user.email = email
+    user.username = username
+
+    try:
+        with transaction.atomic():
+            user.save()
+            buyer.save()
+    except IntegrityError:
+        return Response({
+            "error": "A buyer with this email, username, or phone number already exists"
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response(buyer_payload(buyer), status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])

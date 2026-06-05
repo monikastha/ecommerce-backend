@@ -18,6 +18,16 @@ class Payment(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # For digital payments: store transaction details
+    transaction_id = models.CharField(max_length=100, blank=True, null=True, unique=True)
+    order_id = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Store extra payment data (JSON)
+    extra_data = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return f"{self.method} - {self.total} - {self.status}"
+    
+    class Meta:
+        ordering = ['-created_at']
