@@ -7,7 +7,13 @@ from users.models import Users
 from .models import Buyer
 
 
-def buyer_payload(buyer):
+def buyer_payload(buyer, request=None):
+    profile_pic = None
+    if buyer.profile_pic:
+        profile_pic = buyer.profile_pic.url
+        if request is not None and not profile_pic.startswith("http"):
+            profile_pic = request.build_absolute_uri(profile_pic)
+
     return {
         "id": buyer.id,
         "user_id": buyer.user_id,
@@ -28,7 +34,7 @@ def buyer_payload(buyer):
         "billing_address": buyer.billing_address,
         "total_orders": buyer.total_orders,
         "total_spent": buyer.total_spent,
-        "profile_pic": buyer.profile_pic.url if buyer.profile_pic else None,
+        "profile_pic": profile_pic,
         "created_at": buyer.created_at,
         "updated_at": buyer.updated_at,
     }
@@ -50,7 +56,7 @@ def buyer_profile(request, user_id):
         }, status=status.HTTP_404_NOT_FOUND)
 
     if request.method == "GET":
-        return Response(buyer_payload(buyer), status=status.HTTP_200_OK)
+        return Response(buyer_payload(buyer, request), status=status.HTTP_200_OK)
 
     data = request.data
     user = buyer.user
@@ -73,6 +79,9 @@ def buyer_profile(request, user_id):
     buyer.billing_postal_code = data.get("billing_postal_code", buyer.billing_postal_code)
     buyer.billing_address = data.get("billing_address", buyer.billing_address)
 
+    if request.FILES.get("profile_pic"):
+        buyer.profile_pic = request.FILES["profile_pic"]
+
     age = data.get("age", buyer.age)
     try:
         buyer.age = int(age) if str(age).strip() else None
@@ -94,7 +103,7 @@ def buyer_profile(request, user_id):
             "error": "A buyer with this email, username, or phone number already exists"
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response(buyer_payload(buyer), status=status.HTTP_200_OK)
+    return Response(buyer_payload(buyer, request), status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
