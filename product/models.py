@@ -18,7 +18,7 @@ class Product(models.Model):
         blank=True,
         related_name="products"
     )
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=10000)
     category = models.ForeignKey(
         Category, 
         on_delete=models.SET_NULL, 

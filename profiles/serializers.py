@@ -1,0 +1,26 @@
+from rest_framework import serializers
+
+
+class ProfileSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    user_id = serializers.IntegerField(read_only=True)
+    profile_id = serializers.IntegerField(read_only=True)
+    role = serializers.CharField(read_only=True)
+    name = serializers.CharField(required=False, allow_blank=True)
+    username = serializers.CharField(required=False, allow_blank=True)
+    email = serializers.EmailField(required=False, allow_blank=True)
+    phone = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    phone_number = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    address = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    age = serializers.IntegerField(required=False, allow_null=True)
+    gender = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    shipping_state = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    shipping_city = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    shipping_postal_code = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    shipping_address = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    billing_state = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    billing_city = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    billing_postal_code = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    billing_address = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    profile_image = serializers.ImageField(required=False, allow_null=True)
+    password = serializers.CharField(required=False, allow_blank=True, write_only=True)
