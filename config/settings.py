@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'promotion',
     'deliveryman',
     'Buyer',
+    'profiles.apps.ProfilesConfig',
 
     
 ]
