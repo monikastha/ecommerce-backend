@@ -1,22 +1,32 @@
 from django.conf import settings
 from django.db import models
 from adminlocation.models import Location
+from deliveryman.models import Deliveryman
 from product.models import Product
 
 
 class Order(models.Model):
     STATUS_CHOICES = (
         ('pending', 'Pending'),
+        ('seller_accepted', 'Seller Accepted'),
+        ('preparing', 'Preparing'),
+        ('warehouse_processing', 'Warehouse Processing'),
+        ('ready_for_delivery', 'Ready For Delivery'),
+        ('delivery_assigned', 'Delivery Assigned'),
+        ('delivery_accepted', 'Delivery Accepted'),
+        ('picked_up', 'Picked Up'),
+        ('out_for_delivery', 'Out For Delivery'),
+        ('delivered', 'Delivered'),
+        ('delivery_rejected', 'Delivery Rejected'),
+        ('cancelled', 'Cancelled'),
         ('confirmed', 'Confirmed'),
         ('processing', 'Processing'),
         ('shipped', 'Shipped'),
-        ('out_for_delivery', 'Out For Delivery'),
-        ('delivered', 'Delivered'),
-        ('cancelled', 'Cancelled'),
     )
 
     PAYMENT_CHOICES = (
         ('cash_on_delivery', 'Cash on Delivery'),
+        ('khalti', 'Khalti'),
     )
 
     DELIVERY_CHOICES = (
@@ -49,8 +59,21 @@ class Order(models.Model):
     payment_type = models.CharField(max_length=30, choices=PAYMENT_CHOICES, default='cash_on_delivery')
     subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='confirmed')
+    commission_rate = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=0,
+        help_text='Commission percentage applied when this order was placed.',
+    )
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='pending')
     notes = models.TextField(blank=True)
+    assigned_deliveryman = models.ForeignKey(
+        Deliveryman,
+        on_delete=models.SET_NULL,
+        related_name='assigned_orders',
+        null=True,
+        blank=True,
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -68,6 +91,7 @@ class OrderItem(models.Model):
     product_name = models.CharField(max_length=200)
     product_category = models.CharField(max_length=150, blank=True)
     product_image = models.URLField(blank=True)
+    selected_size = models.CharField(max_length=60, blank=True)
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=12, decimal_places=2)
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)

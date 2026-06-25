@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'seller',
     'api',
     'payment',
+    'earnings',
     'cart',
     'orders',
     'product',
@@ -171,3 +172,13 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
 WEBSITE_URL = config('WEBSITE_URL', default='http://localhost:3000')
+
+ESEWA_PRODUCT_CODE = config('ESEWA_PRODUCT_CODE', default='EPAYTEST')
+ESEWA_SECRET_KEY = config('ESEWA_SECRET_KEY', default='8gBm/:&EnhH.1/q')
+ESEWA_PAYMENT_URL = config('ESEWA_PAYMENT_URL', default='https://rc-epay.esewa.com.np/api/epay/main/v2/form')
+FRONTEND_PAYMENT_SUCCESS_URL = config('FRONTEND_PAYMENT_SUCCESS_URL', default='http://localhost:5173/payment-success')
+FRONTEND_PAYMENT_FAILURE_URL = config('FRONTEND_PAYMENT_FAILURE_URL', default='http://localhost:5173/payment-failed')
+
+KHALTI_SECRET_KEY = config('KHALTI_SECRET_KEY', default='')
+KHALTI_INITIATE_URL = config('KHALTI_INITIATE_URL', default='https://dev.khalti.com/api/v2/epayment/initiate/')
+KHALTI_WEBSITE_URL = config('KHALTI_WEBSITE_URL', default='http://localhost:5173')

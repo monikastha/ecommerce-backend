@@ -4,6 +4,7 @@ class Payment(models.Model):
     PAYMENT_METHODS = (
         ('cod', 'Cash on Delivery'),
         ('esewa', 'Esewa'),
+        ('khalti', 'Khalti'),
     )
 
     STATUS_CHOICES = (

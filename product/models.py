@@ -30,6 +30,7 @@ class Product(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     quantity = models.PositiveIntegerField(default=0)
+    size = models.CharField(max_length=60, blank=True)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     is_published = models.BooleanField(default=False)

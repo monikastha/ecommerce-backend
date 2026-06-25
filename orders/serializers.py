@@ -7,6 +7,8 @@ from adminlocation.models import Location
 from product.models import Product
 from stock.models import Stock
 from cart.models import Cart
+from deliveryman.serializers import DeliverymanSerializer
+from earnings.models import CommissionSettings
 from .models import Order, OrderItem
 
 User = get_user_model()
@@ -21,6 +23,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'product_name',
             'product_category',
             'product_image',
+            'selected_size',
             'quantity',
             'price',
             'subtotal',
@@ -31,6 +34,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    assigned_deliveryman_detail = DeliverymanSerializer(source='assigned_deliveryman', read_only=True)
 
     class Meta:
         model = Order
@@ -52,13 +56,16 @@ class OrderSerializer(serializers.ModelSerializer):
             'payment_type',
             'subtotal',
             'total',
+            'commission_rate',
             'status',
             'notes',
+            'assigned_deliveryman',
+            'assigned_deliveryman_detail',
             'items',
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['created_at', 'updated_at']
+        read_only_fields = ['commission_rate', 'created_at', 'updated_at']
 
 
 class OrderCreateSerializer(serializers.Serializer):
@@ -76,7 +83,7 @@ class OrderCreateSerializer(serializers.Serializer):
     delivery_type = serializers.ChoiceField(choices=Order.DELIVERY_CHOICES, default='normal')
     delivery_fee = serializers.DecimalField(max_digits=12, decimal_places=2, default=0)
     payment_type = serializers.ChoiceField(choices=Order.PAYMENT_CHOICES, default='cash_on_delivery')
-    status = serializers.ChoiceField(choices=Order.STATUS_CHOICES, default='confirmed')
+    status = serializers.ChoiceField(choices=Order.STATUS_CHOICES, default='pending')
     notes = serializers.CharField(required=False, allow_blank=True)
     reduce_stock = serializers.BooleanField(default=True)
     clear_cart = serializers.BooleanField(default=False)
@@ -158,14 +165,17 @@ class OrderCreateSerializer(serializers.Serializer):
                     'product_name': product.name,
                     'product_category': product.category.name if product.category else '',
                     'product_image': raw_item.get('image') or self._product_image(product),
+                    'selected_size': raw_item.get('size') or raw_item.get('selected_size') or '',
                     'quantity': quantity,
                     'price': price,
                     'subtotal': item_subtotal,
                 })
 
             delivery_fee = validated_data.get('delivery_fee') or Decimal('0')
+            commission_settings = CommissionSettings.get_settings()
             validated_data['subtotal'] = subtotal
             validated_data['total'] = subtotal + delivery_fee
+            validated_data['commission_rate'] = commission_settings.commission_rate
             order = Order.objects.create(**validated_data)
             OrderItem.objects.bulk_create([
                 OrderItem(order=order, **item) for item in prepared_items

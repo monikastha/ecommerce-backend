@@ -22,6 +22,7 @@ urlpatterns = [
     path('api/', include('orders.urls')),
     path('api/', include('review.urls')),
     path('api/', include('payment.urls')),  # Add payment URLs
+    path('api/earnings/', include('earnings.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
