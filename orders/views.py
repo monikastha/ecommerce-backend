@@ -79,7 +79,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                 {'error': f'Cannot change order from {order.status} to {next_status}'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
         order.status = next_status
         order.save(update_fields=['status', 'updated_at'])
         return Response(OrderSerializer(order, context={'request': request}).data)

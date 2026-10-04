@@ -65,7 +65,11 @@ class OrderSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at',
         ]
-        read_only_fields = ['commission_rate', 'created_at', 'updated_at']
+        read_only_fields = [
+            'commission_rate',
+            'created_at',
+            'updated_at',
+        ]
 
 
 class OrderCreateSerializer(serializers.Serializer):

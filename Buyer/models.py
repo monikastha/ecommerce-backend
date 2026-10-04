@@ -19,20 +19,20 @@ class Buyer(models.Model):
   gender=models.CharField(max_length=20,blank=True,null=True)
   
   #shipping address
-  shipping_state=models.CharField(max_length=100,blank=True,null=True)
-  shipping_city=models.CharField(max_length=100,blank=True,null=True)
-  shipping_postal_code=models.CharField(max_length=100,blank=True,null=True)
+  # shipping_state=models.CharField(max_length=100,blank=True,null=True)
+  # shipping_city=models.CharField(max_length=100,blank=True,null=True)
+  # shipping_postal_code=models.CharField(max_length=100,blank=True,null=True)
   shipping_address=models.TextField(blank=True,null=True)
   
   #billing address
-  billing_state=models.CharField(max_length=100,blank=True,null=True)
-  billing_city=models.CharField(max_length=100,blank=True,null=True)
-  billing_postal_code=models.CharField(max_length=100,blank=True,null=True)
-  billing_address=models.TextField(blank=True,null=True)
+  # billing_state=models.CharField(max_length=100,blank=True,null=True)
+  # billing_city=models.CharField(max_length=100,blank=True,null=True)
+  # billing_postal_code=models.CharField(max_length=100,blank=True,null=True)
+  # billing_address=models.TextField(blank=True,null=True)
   
-  #ecommerce tracking
-  total_orders=models.BooleanField(default=False)
-  total_spent=models.DecimalField(max_digits=10,decimal_places=2,default=0)
+  # #ecommerce tracking
+  # total_orders=models.BooleanField(default=False)
+  # total_spent=models.DecimalField(max_digits=10,decimal_places=2,default=0)
   
   #profile image
   profile_pic=models.ImageField(upload_to='buyers/',blank=True,null=True)

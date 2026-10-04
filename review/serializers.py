@@ -1,7 +1,11 @@
 from rest_framework import serializers
 from django.utils import timezone
+from seller.models import Seller
 from orders.models import OrderItem
 from .models import Review
+
+REVIEWABLE_ORDER_STATUSES = ['delivered']
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
@@ -36,33 +40,19 @@ class ReviewSerializer(serializers.ModelSerializer):
         if not product:
             raise serializers.ValidationError({'product': 'Product is required for reviews.'})
 
-        purchased = OrderItem.objects.filter(
+        delivered_purchase = OrderItem.objects.filter(
             product=product,
-            order__status__in=[
-                'pending',
-                'seller_accepted',
-                'preparing',
-                'warehouse_processing',
-                'ready_for_delivery',
-                'delivery_assigned',
-                'delivery_accepted',
-                'picked_up',
-                'out_for_delivery',
-                'delivered',
-                'confirmed',
-                'processing',
-                'shipped',
-            ],
+            order__status__in=REVIEWABLE_ORDER_STATUSES,
         )
         if user:
-            purchased = purchased.filter(order__user=user)
+            delivered_purchase = delivered_purchase.filter(order__user=user)
         elif buyer_username:
-            purchased = purchased.filter(order__buyer_username=buyer_username)
+            delivered_purchase = delivered_purchase.filter(order__buyer_username=buyer_username)
         else:
             raise serializers.ValidationError({'buyer_username': 'Buyer username is required.'})
 
-        if not purchased.exists():
-            raise serializers.ValidationError('You can review this product only after purchasing it.')
+        if not delivered_purchase.exists():
+            raise serializers.ValidationError('You can review this product only after it has been delivered.')
 
         return attrs
 
@@ -70,10 +60,41 @@ class ReviewSerializer(serializers.ModelSerializer):
 class ReviewReplySerializer(serializers.Serializer):
     message = serializers.CharField(trim_whitespace=True)
     seller_name = serializers.CharField(required=False, allow_blank=True, trim_whitespace=True)
+    seller_id = serializers.IntegerField(required=False)
+
+    def validate(self, attrs):
+        attrs = super().validate(attrs)
+        review = self.context.get('review')
+        request = self.context.get('request')
+
+        if not review or not review.product or not review.product.seller_id:
+            raise serializers.ValidationError('This review is not linked to a seller product.')
+
+        seller = None
+        user = request.user if request and request.user and request.user.is_authenticated else None
+        if user and getattr(user, 'role', None) == 'seller':
+            seller = Seller.objects.filter(user=user).first()
+        elif attrs.get('seller_id'):
+            seller = Seller.objects.filter(id=attrs['seller_id']).first()
+
+        if not seller:
+            raise serializers.ValidationError({'seller_id': 'Seller id is required to reply to this review.'})
+
+        if seller.id != review.product.seller_id:
+            raise serializers.ValidationError('You can reply only to reviews for your own products.')
+
+        attrs['seller'] = seller
+        return attrs
 
     def save(self, review):
+        seller = self.validated_data.get('seller')
         review.seller_reply_message = self.validated_data['message']
-        review.seller_reply_name = self.validated_data.get('seller_name') or 'Seller'
+        review.seller_reply_name = (
+            self.validated_data.get('seller_name')
+            or getattr(getattr(seller, 'user', None), 'name', '')
+            or getattr(getattr(seller, 'user', None), 'username', '')
+            or 'Seller'
+        )
         review.seller_reply_at = timezone.now()
         review.save(update_fields=['seller_reply_message', 'seller_reply_name', 'seller_reply_at', 'updated_at'])
         return review

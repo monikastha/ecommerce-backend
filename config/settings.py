@@ -60,6 +60,8 @@ INSTALLED_APPS = [
     'deliveryman',
     'Buyer',
     'profiles.apps.ProfilesConfig',
+    'channels',
+    'notifications',
 
     
 ]
@@ -96,6 +98,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
+ASGI_APPLICATION = 'config.asgi.application'
 
 
 # Database
@@ -161,6 +164,13 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+}
+
+# Channels (development in-memory layer)
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
 }
 # # otp VERFICATION SETTINGS
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

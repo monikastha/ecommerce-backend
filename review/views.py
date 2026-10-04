@@ -31,7 +31,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'], url_path='reply')
     def reply(self, request, pk=None):
         review = self.get_object()
-        serializer = ReviewReplySerializer(data=request.data)
+        serializer = ReviewReplySerializer(
+            data=request.data,
+            context={'request': request, 'review': review},
+        )
         serializer.is_valid(raise_exception=True)
         serializer.save(review)
         return Response(ReviewSerializer(review, context={'request': request}).data)

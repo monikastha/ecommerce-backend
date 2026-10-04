@@ -7,6 +7,10 @@ from users.models import Users
 from .models import Buyer
 
 
+def get_model_attr(instance, field_name, default=None):
+    return getattr(instance, field_name, default)
+
+
 def buyer_payload(buyer, request=None):
     profile_pic = None
     if buyer.profile_pic:
@@ -24,16 +28,16 @@ def buyer_payload(buyer, request=None):
         "gender": buyer.gender,
         "phone_number": buyer.phone_number,
         "address": buyer.address,
-        "shipping_state": buyer.shipping_state,
-        "shipping_city": buyer.shipping_city,
-        "shipping_postal_code": buyer.shipping_postal_code,
-        "shipping_address": buyer.shipping_address,
-        "billing_state": buyer.billing_state,
-        "billing_city": buyer.billing_city,
-        "billing_postal_code": buyer.billing_postal_code,
-        "billing_address": buyer.billing_address,
-        "total_orders": buyer.total_orders,
-        "total_spent": buyer.total_spent,
+        "shipping_state": get_model_attr(buyer, "shipping_state"),
+        "shipping_city": get_model_attr(buyer, "shipping_city"),
+        "shipping_postal_code": get_model_attr(buyer, "shipping_postal_code"),
+        "shipping_address": get_model_attr(buyer, "shipping_address"),
+        "billing_state": get_model_attr(buyer, "billing_state"),
+        "billing_city": get_model_attr(buyer, "billing_city"),
+        "billing_postal_code": get_model_attr(buyer, "billing_postal_code"),
+        "billing_address": get_model_attr(buyer, "billing_address"),
+        "total_orders": get_model_attr(buyer, "total_orders"),
+        "total_spent": get_model_attr(buyer, "total_spent"),
         "profile_pic": profile_pic,
         "created_at": buyer.created_at,
         "updated_at": buyer.updated_at,
@@ -70,14 +74,21 @@ def buyer_profile(request, user_id):
     buyer.phone_number = data.get("phone_number", buyer.phone_number)
     buyer.address = data.get("address", buyer.address)
     buyer.gender = data.get("gender", buyer.gender)
-    buyer.shipping_state = data.get("shipping_state", buyer.shipping_state)
-    buyer.shipping_city = data.get("shipping_city", buyer.shipping_city)
-    buyer.shipping_postal_code = data.get("shipping_postal_code", buyer.shipping_postal_code)
-    buyer.shipping_address = data.get("shipping_address", buyer.shipping_address)
-    buyer.billing_state = data.get("billing_state", buyer.billing_state)
-    buyer.billing_city = data.get("billing_city", buyer.billing_city)
-    buyer.billing_postal_code = data.get("billing_postal_code", buyer.billing_postal_code)
-    buyer.billing_address = data.get("billing_address", buyer.billing_address)
+
+    for field in [
+        "shipping_state",
+        "shipping_city",
+        "shipping_postal_code",
+        "shipping_address",
+        "billing_state",
+        "billing_city",
+        "billing_postal_code",
+        "billing_address",
+        "total_orders",
+        "total_spent",
+    ]:
+        if hasattr(buyer, field):
+            setattr(buyer, field, data.get(field, getattr(buyer, field)))
 
     if request.FILES.get("profile_pic"):
         buyer.profile_pic = request.FILES["profile_pic"]
